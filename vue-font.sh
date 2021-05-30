@@ -14,4 +14,4 @@ echo "停止旧容器并删除旧容器"
 docker stop vue-font-container
 docker rm vue-font-container
 echo "启动新容器"
-docker container run -p 3000:3000 --name vue-font-container -d vue-font:1.0
+docker container run -p 80:80 --name vue-font-container -d vue-font:1.0
