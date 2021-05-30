@@ -22,11 +22,12 @@ let server = http.createServer(function(req,res){
             res.setHeader('Content-Type', 'application/json');
             res.end(JSON.stringify({ok: true}));
             if(event == 'push'){//开始部署
+                console.log('开始部署')
                 let payload = JSON.parse(body);
                 let child = spawn('sh', [`./${payload.repository.name}.sh`]);
                 let buffers = [];
                 child.stdout.on('data', function (buffer) { buffers.push(buffer)});
-                child.stdout.on('end', function(buffer){
+                child.stdout.on('end', function(buffer){ 
                     let log = Buffer.concat(buffers);
                     console.log(log);
                 })
