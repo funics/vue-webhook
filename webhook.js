@@ -3,19 +3,19 @@ let crypto = require('crypto');
 var { spawn } = require('child_process');
 let SECRET = '123456';
 function sign(body){
-    return `sha1=`+crypto.createHmac('sha1', SECRET).update().digest('hex');
+    return `sha1=`+crypto.createHmac('sha1', SECRET).update(body).digest('hex');
 }
 let server = http.createServer(function(req,res){
     console.log(req.method, req.url);
     if(req.method =='POST'&& req.url == '/webhook'){
         let buffers = [];
-        req.on('data', function(buffer){
-            buffers.push(buffer);
+        req.on('data',function(data){
+            buffers.push(data);
         });
         req.on('end', function(buffer){
             let body = Buffer.concat(buffers);
-            let event = req.headers['x-gitHub-event']; // event-push
-            let signature = req.headers['x-hub-signature'];
+            let sig   = req.headers['x-hub-signature'];
+            let event = req.headers['x-github-event'];
             if(signature !== sign(body)){
                 return res.end('Not Allowed');
             }
@@ -26,8 +26,8 @@ let server = http.createServer(function(req,res){
                 let payload = JSON.parse(body);
                 let child = spawn('sh', [`./${payload.repository.name}.sh`]);
                 let buffers = [];
-                child.stdout.on('data', function (buffer) { buffers.push(buffer)});
-                child.stdout.on('end', function(buffer){ 
+                child.stdout.on('data', function (data) { buffers.push(data)});
+                child.stdout.on('end', function(data){ 
                     let log = Buffer.concat(buffers);
                     console.log(log);
                 })
